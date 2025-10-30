@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Treino - Kelly Braga</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent; 
+        }
+        .motivational-card {
+            background: linear-gradient(135deg, #845EC2, #D65DB1, #FF6F91, #FF9671, #FFC75F, #F9F871);
+            animation: gradient-animation 10s ease infinite;
+            background-size: 400% 400%;
+        }
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Checkbox de SÉRIE (quadrado) */
+        .series-checkbox-label input:checked ~ .series-checkbox-custom {
+            background-color: #D65DB1; 
+            border-color: #D65DB1;
+        }
+        .series-checkbox-label input:checked ~ .series-checkbox-custom svg {
+            display: block; 
+        }
+
+        /* Checkbox de EXERCÍCIO COMPLETO (redondo) */
+        .master-checkbox-label input:checked ~ .master-checkbox-custom {
+            background-color: #4ade80; /* Verde para concluído */
+            border-color: #4ade80;
+        }
+        .master-checkbox-label input:checked ~ .master-checkbox-custom svg {
+            display: block;
+        }
+
+        .nav-button-active {
+            background-color: #845EC2 !important; 
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes pulse { 50% { transform: scale(1.05); } }
+        .timer-pulse { animation: pulse 1s infinite ease-in-out; }
+
+        .info-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 0.5rem; 
+        }
+        .info-content.expanded {
+            max-height: 300px; 
+            padding: 1rem 0.5rem; 
+        }
+        
+        /* Estilos para inputs numéricos */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div class="container mx-auto p-4 max-w-2xl pb-24">
+        
+        <header class="text-center my-6">
+            <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">
+                Plano de Treino da Kelly
+            </h1>
+            <p class="text-gray-400 mt-1">Sua jornada, sua força.</p>
+        </header>
+
+        <div id="motivational-card" class="motivational-card text-gray-800 rounded-xl p-6 mb-8 text-center shadow-lg">
+            <p id="quote" class="text-lg font-semibold text-white">"Carregando frase motivacional..."</p>
+        </div>
+
+        <div class="mb-8 overflow-x-auto pb-2 no-scrollbar">
+            <nav id="day-navigation" class="flex space-x-2 justify-start md:justify-center min-w-max">
+            </nav>
+        </div>
+
+        <main id="workout-container">
+            <!-- Cabeçalho do Treino (Progresso) -->
+            <div id="workout-header" class="text-center mb-6">
+                <!-- Barra de Progresso -->
+                <div id="progress-container" class="mb-4">
+                    <div id="workout-progress-text" class="text-sm text-gray-300 mb-2 text-center">0% Completo</div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div id="workout-progress-bar" class="bg-purple-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <h2 id="workout-day" class="text-2xl font-bold text-white"></h2>
+                <p id="workout-focus" class="text-purple-300 font-semibold"></p>
+            </div>
+
+            <!-- Seção de Aquecimento -->
+            <div id="warmup-section" class="mb-6 space-y-3"></div>
+            
+            <!-- Lista de Exercícios -->
+            <div id="exercise-list" class="space-y-4"></div>
+
+            <!-- Seção de Cardio -->
+            <div id="cardio-section" class="mt-6 space-y-3"></div>
+        </main>
+
+        <!-- Seção de Resumo do Treino -->
+        <div id="summary-section" class="bg-gray-800 rounded-lg p-6 shadow-md mt-8">
+            <h3 class="text-xl font-bold text-white mb-4">Resumo do Treino</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="workout-duration" class="text-sm text-gray-400 font-semibold">Duração (min)</label>
+                    <input type="number" id="workout-duration" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 60">
+                </div>
+                <div>
+                    <label for="workout-calories" class="text-sm text-gray-400 font-semibold">Calorias (kcal)</label>
+                    <input type="number" id="workout-calories" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 350">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal do Timer -->
+    <div id="timer-modal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 w-full max-w-sm text-center">
+            <h3 class="text-xl font-semibold text-gray-300 mb-2">Tempo de Descanso</h3>
+            <div id="timer-display" class="text-7xl md:text-8xl font-bold my-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500">01:00</div>
+            <div class="flex justify-center items-center space-x-4 mb-6">
+                <button onclick="adjustTime(-15)" class="w-12 h-12 bg-gray-700 rounded-full text-lg font-bold flex items-center justify-center">-15s</button>
+                <button id="pause-resume-button" onclick="togglePause()" class="w-24 h-12 bg-purple-600 rounded-lg text-lg font-bold">Pausar</button>
+                <button onclick="adjustTime(15)" class="w-12 h-12 bg-gray-700 rounded-full text-lg font-bold flex items-center justify-center">+15s</button>
+            </div>
+            <button onclick="closeTimer()" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 rounded-lg transition-colors">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        const lowerBodyWarmup = [
+            { name: "Agachamento sem peso", duration: "2 min" },
+            { name: "Alongamento Dinâmico", duration: "2 min" }
+        ];
+        const upperBodyWarmup = [
+            { name: "Alongamento Dinâmico", duration: "2 min" }
+        ];
+
+        const generalCardio = { name: "HIIT (Esteira ou Bike)", duration: "20 min" };
+        const restDayCardio = { name: "Caminhada Leve", duration: "30 min (Opcional)" };
+
+        const workouts = {
+            1: {
+                day: "Segunda-Feira", focus: "Glúteo",
+                warmup: lowerBodyWarmup,
+                exercises: [
+                    { name: "Agachamento sumo", series: 4, reps: "15", target: "Glúteo", desc: "Afaste os pés além da largura dos ombros, com as pontas para fora. Mantenha as costas retas e agache como se fosse sentar, descendo o máximo que conseguir com boa postura." },
+                    { name: "Elevação Pélvica", series: 4, reps: "20", target: "Glúteo", desc: "Deite-se com os joelhos dobrados. Coloque o peso sobre o quadril e eleve-o em direção ao teto, contraindo os glúteos no topo. Desça de forma controlada." },
+                    { name: "Afundo com Haltere", series: 3, reps: "12", target: "Glúteo", desc: "Dê um passo à frente e flexione os joelhos até formarem ângulos de 90 graus. O joelho de trás deve quase tocar o chão. Mantenha o tronco ereto." },
+                    { name: "Cadeira Abdutora", series: 3, reps: "15", target: "Glúteo", desc: "Sente-se com as costas apoiadas. Force as pernas para fora contra as almofadas, controlando o movimento na ida e na volta." },
+                    { name: "Glúteo Máquina", series: 3, reps: "15", target: "Glúteo", desc: "Apoie-se na máquina e posicione um pé na plataforma. Empurre a plataforma para trás e para cima, contraindo o glúteo. Controle a volta." },
+                    { name: "Agachamento Livre", series: 3, reps: "15", target: "Quadríceps", desc: "Posicione a barra nos ombros. Com os pés na largura dos ombros e costas retas, agache descendo o quadril para trás e para baixo. Mantenha o peito aberto." }
+                ],
+                cardio: generalCardio
+            },
+            2: {
+                day: "Terça-Feira", focus: "Ombro, Peito & Tríceps",
+                warmup: upperBodyWarmup,
+                exercises: [
+                    { name: "Supino Reto", series: 4, reps: "12", target: "Peito", desc: "Deite-se no banco, pés firmes no chão. Desça a barra de forma controlada até o meio do peito e empurre para cima até estender os cotovelos." },
+                    { name: "Desenvolvimento com Halteres", series: 3, reps: "12", target: "Ombro", desc: "Sentada, eleve os halteres da altura dos ombros até acima da cabeça, sem encostá-los. Desça de forma controlada." },
+                    { name: "Elevação Lateral", series: 3, reps: "15", target: "Ombro", desc: "Em pé, eleve os halteres para os lados até a altura dos ombros, com os cotovelos levemente flexionados. Controle a subida e a descida." },
+                    { name: "Tríceps Pulley", series: 3, reps: "15", target: "Tríceps", desc: "Mantenha os cotovelos colados ao corpo. Puxe a barra para baixo até estender completamente os braços. Suba controladamente." },
+                    { name: "Tríceps Testa", series: 3, reps: "12", target: "Tríceps", desc: "Deitada, desça a barra em direção à testa, flexionando os cotovelos. Mantenha os cotovelos apontados para o teto e estenda os braços para voltar." },
+                    { name: "Peck Deck", series: 3, reps: "15", target: "Peito", desc: "Sente-se com as costas apoiadas. Junte os pegadores na frente do corpo, contraindo o peitoral. Volte à posição inicial de forma controlada." }
+                ],
+                cardio: generalCardio
+            },
+            3: {
+                day: "Quarta-Feira", focus: "Pernas (Foco em Quadríceps)",
+                warmup: lowerBodyWarmup,
+                exercises: [
+                    { name: "Leg. 45", series: 4, reps: "15", target: "Quadríceps", desc: "Com os pés na plataforma, desça o peso flexionando os joelhos. Empurre de volta sem travar os joelhos no final do movimento." },
+                    { name: "Agachamento Hack", series: 3, reps: "12", target: "Quadríceps", desc: "Mantenha a coluna reta contra o encosto. Agache flexionando os joelhos e empurre para voltar à posição inicial." },
+                    { name: "Extensora", series: 3, reps: "15", target: "Quadríceps", desc: "Sentada, estenda as pernas para cima, contraindo o quadríceps. Segure no topo e desça de forma controlada." },
+                    { name: "Agachamento Búlgaro", series: 3, reps: "12", target: "Quadríceps", desc: "Apoie o peito de um pé no banco atrás de você. Agache com a perna da frente, mantendo o tronco ereto e o equilíbrio." },
+                    { name: "Avanço com Halteres", series: 3, reps: "12", target: "Quadríceps", desc: "Dê um passo à frente e agache (afundo). Em vez de retornar, impulsione o corpo para frente, 'caminhando' com os afundos." },
+                    { name: "Cadeira Flexora", series: 3, reps: "15", target: "Posterior", desc: "Deitada de bruços, puxe a almofada em direção aos glúteos, contraindo a parte de trás da coxa. Desça de forma controlada." }
+                ],
+                cardio: generalCardio
+            },
+            4: {
+                day: "Quinta-Feira", focus: "Costas & Bíceps",
+                warmup: upperBodyWarmup,
+                exercises: [
+                    { name: "Pulldown", series: 4, reps: "12", target: "Costas", desc: "Puxe a barra em direção à parte superior do peito, inclinando levemente o tronco para trás e contraindo as costas." },
+                    { name: "Remada Baixa", series: 3, reps: "15", target: "Costas", desc: "Puxe o pegador em direção ao abdômen, mantendo as costas retas e juntando as escápulas no final do movimento." },
+                    { name: "Remada Curvada", series: 3, reps: "12", target: "Costas", desc: "Incline o tronco para a frente com as costas retas. Puxe a barra em direção à parte inferior do abdômen, mantendo os cotovelos próximos ao corpo." },
+                    { name: "Rosca direta Barra", series: 3, reps: "15", target: "Bíceps", desc: "Mantenha os cotovelos fixos ao lado do corpo e suba a barra flexionando os braços, sem balançar o corpo." },
+                    { name: "Rosca Alternada", series: 3, reps: "12", target: "Bíceps", desc: "Suba um haltere de cada vez, girando o punho para que a palma da mão fique para cima no topo do movimento. Controle a descida." },
+                    { name: "Rosca Martelo", series: 3, reps: "12", target: "Bíceps", desc: "Segure os halteres com pegada neutra (martelo). Suba os pesos mantendo os cotovelos fixos ao lado do corpo." }
+                ],
+                cardio: generalCardio
+            },
+            5: {
+                day: "Sexta-Feira", focus: "Pernas (Posteriores, Glúteos & Panturrilha)",
+                warmup: lowerBodyWarmup,
+                exercises: [
+                    { name: "Stiff", series: 4, reps: "15", target: "Posterior", desc: "Com as pernas quase retas, incline o tronco para a frente, descendo o peso. Mantenha as costas retas e sinta alongar a parte de trás da coxa." },
+                    { name: "Cadeira Flexora", series: 4, reps: "15", target: "Posterior", desc: "Deitada de bruços, puxe a almofada em direção aos glúteos, contraindo a parte de trás da coxa. Desça de forma controlada." },
+                    { name: "Elevação Pélvica", series: 3, reps: "20", target: "Glúteo", desc: "Deite-se com os joelhos dobrados. Coloque o peso sobre o quadril e eleve-o em direção ao teto, contraindo os glúteos no topo." },
+                    { name: "Agachamento Sumo", series: 3, reps: "12", target: "Glúteo", desc: "Afaste os pés além da largura dos ombros, com as pontas para fora. Mantenha as costas retas e agache o máximo que conseguir com boa postura." },
+                    { name: "Gêmeos Sentado", series: 4, reps: "10 > 20", target: "Panturrilha", desc: "Eleve os calcanhares o máximo que puder, contraindo a panturrilha. Desça de forma controlada, alongando bem." },
+                    { name: "Gêmeos Plantar", series: 4, reps: "10 > 20", target: "Panturrilha", desc: "Em pé, na beira de um degrau. Fique na ponta dos pés, contraindo a panturrilha, e desça o máximo que conseguir para alongar." }
+                ],
+                cardio: generalCardio
+            },
+            0: { day: "Domingo", focus: "Dia de Descanso", exercises: [], warmup: [], cardio: restDayCardio },
+            6: { day: "Sábado", focus: "Dia de Descanso", exercises: [], warmup: [], cardio: restDayCardio }
+        };
+
+        const motivationalQuotes = ["Acredite em você e em tudo que você é. Saiba que existe algo dentro de você que é maior que qualquer obstáculo.","A dor que você sente hoje é a força que você sentirá amanhã.","O sucesso é a soma de pequenos esforços repetidos dia após dia.","A única pessoa que você está destinada a se tornar é a pessoa que você decide ser.","Não espere por oportunidades, crie-as. O corpo alcança o que a mente acredita.","A persistência realiza o impossível.","Seu maior concorrente é você mesmo. Supere-se todos os dias.","Cada treino é um passo a mais para a sua melhor versão.","Força não vem da capacidade física. Vem de uma vontade indomável.","O suor de hoje é o sorriso de amanhã. Continue firme!"];
+        
+        let timerInterval = null, remainingSeconds = 60, isPaused = false, audioContext;
+        const timerModal = document.getElementById('timer-modal'), timerDisplay = document.getElementById('timer-display'), pauseResumeButton = document.getElementById('pause-resume-button');
+        const progressContainer = document.getElementById('progress-container'), summarySection = document.getElementById('summary-section');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const quoteEl = document.getElementById('quote'), dayNavigationEl = document.getElementById('day-navigation'), today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+            quoteEl.textContent = motivationalQuotes[dayOfYear % motivationalQuotes.length];
+            
+            const weekDays = [{ id: 1, name: "SEG" }, { id: 2, name: "TER" }, { id: 3, name: "QUA" }, { id: 4, name: "QUI" }, { id: 5, name: "SEX" }, { id: 6, name: "SAB" }, { id: 0, name: "DOM" }];
+            weekDays.forEach(({id, name}) => {
+                const button = document.createElement('button');
+                button.textContent = name; button.dataset.day = id;
+                button.className = 'nav-button px-4 py-2 rounded-lg font-semibold bg-gray-700 text-gray-300 transition-all duration-300 flex-shrink-0';
+                button.onclick = () => showWorkout(id); dayNavigationEl.appendChild(button);
+            });
+            
+            showWorkout(today.getDay());
+        });
+
+        function showWorkout(dayIndex) {
+            const workout = workouts[dayIndex];
+            if (!workout) return;
+            
+            document.getElementById('workout-day').textContent = workout.day;
+            document.getElementById('workout-focus').textContent = workout.focus;
+            document.querySelectorAll('.nav-button').forEach(btn => btn.classList.toggle('nav-button-active', btn.dataset.day == dayIndex));
+            
+            const warmupSectionEl = document.getElementById('warmup-section');
+            const exerciseListEl = document.getElementById('exercise-list');
+            const cardioSectionEl = document.getElementById('cardio-section');
+            
+            warmupSectionEl.innerHTML = ''; 
+            exerciseListEl.innerHTML = '';
+            cardioSectionEl.innerHTML = '';
+
+            const isRestDay = workout.exercises.length === 0;
+
+            if (isRestDay) {
+                progressContainer.classList.add('hidden');
+                summarySection.classList.add('hidden');
+                exerciseListEl.innerHTML = `<div class="bg-gray-800 rounded-lg p-6 text-center"><p class="text-lg font-semibold">Aproveite para recarregar as energias!</p><p class="text-gray-400 mt-2">O descanso é fundamental.</p></div>`;
+            } else {
+                progressContainer.classList.remove('hidden');
+                summarySection.classList.remove('hidden');
+                
+                warmupSectionEl.innerHTML = `<h3 class="text-xl font-bold text-white mb-3">Aquecimento</h3>`;
+                workout.warmup.forEach(item => {
+                    warmupSectionEl.appendChild(createActivityCard(item, false));
+                });
+
+                workout.exercises.forEach((exercise, index) => {
+                    exerciseListEl.appendChild(createExerciseCard(exercise, dayIndex, index));
+                });
+            }
+
+            cardioSectionEl.innerHTML = `<h3 class="text-xl font-bold text-white mb-3">${isRestDay ? "Atividade Opcional" : "Cardio (Pós-treino)"}</h3>`;
+            cardioSectionEl.appendChild(createActivityCard(workout.cardio, false));
+
+            updateProgress();
+        }
+
+        function createActivityCard(activity, showCheckbox) {
+            const card = document.createElement('div');
+            card.className = "bg-gray-800 rounded-lg p-4 shadow-md flex justify-between items-center";
+            card.innerHTML = `
+                <div>
+                    <h3 class="text-lg font-bold text-white">${activity.name}</h3>
+                    <p class="text-sm text-purple-300">${activity.duration}</p>
+                </div>
+            `;
+            return card;
+        }
+
+        function createExerciseCard(exercise, dayIndex, index) {
+            const cardId = `ex-card-${dayIndex}-${index}`;
+            let seriesCheckboxes = Array.from({ length: exercise.series }, () => `
+                <label class="series-checkbox-label relative flex items-center justify-center cursor-pointer">
+                    <input type="checkbox" class="sr-only">
+                    <div class="series-checkbox-custom w-8 h-8 bg-gray-600 rounded-md border-2 border-gray-500 flex items-center justify-center transition-all duration-300">
+                        <svg class="w-5 h-5 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                </label>`).join('');
+
+            const exerciseCard = document.createElement('div');
+            exerciseCard.className = "bg-gray-800 rounded-lg p-4 shadow-md";
+            exerciseCard.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center space-x-3">
+                        <label class="master-checkbox-label relative flex items-center justify-center cursor-pointer">
+                            <input type="checkbox" class="sr-only exercise-complete-checkbox" onchange="updateProgress()">
+                            <div class="master-checkbox-custom w-7 h-7 bg-gray-600 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all duration-300">
+                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                        </label>
+                        <div>
+                            <h3 class="text-xl font-bold text-white">${exercise.name}</h3>
+                            <p class="text-sm text-purple-300">${exercise.target}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <!-- Botão de Informação -->
+                        <button onclick="toggleInfo('${cardId}')" class="text-gray-400 hover:text-white mr-4 p-1 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </button>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-lg font-semibold">${exercise.series}x <span class="text-pink-400">${exercise.reps}</span></p>
+                            <p class="text-xs text-gray-400">Séries x Reps</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="${cardId}" class="info-content border-t border-gray-700 mt-4">
+                    <p class="text-gray-300 text-sm">${exercise.desc}</p>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-gray-700">
+                    <div class="flex justify-between items-center mb-3">
+                        <p class="text-sm font-semibold text-gray-300">Marque suas séries:</p>
+                        <button onclick="startTimer(60)" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold py-2 px-3 rounded-lg transition-colors">Descansar</button>
+                    </div>
+                    <div class="flex flex-wrap gap-3">${seriesCheckboxes}</div>
+                    
+                    <div class="mt-4">
+                        <label for="weight-${cardId}" class="text-sm font-semibold text-gray-300">Carga (kg):</label>
+                        <input type="number" id="weight-${cardId}" class="w-full bg-gray-600 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 20">
+                    </div>
+                </div>
+            `;
+            return exerciseCard;
+        }
+
+        function toggleInfo(cardId) {
+            const content = document.getElementById(cardId);
+            content.classList.toggle('expanded');
+        }
+
+        function updateProgress() {
+            const allExercises = document.querySelectorAll('.exercise-complete-checkbox');
+            const completedExercises = document.querySelectorAll('.exercise-complete-checkbox:checked');
+            const total = allExercises.length;
+            const completed = completedExercises.length;
+            let percentage = (total > 0) ? (completed / total) * 100 : 0;
+            
+            document.getElementById('workout-progress-bar').style.width = percentage + '%';
+            document.getElementById('workout-progress-text').textContent = Math.round(percentage) + '% Completo';
+        }
+
+        // --- Funções do Timer ---
+        function updateTimerDisplay() {
+            const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+            const seconds = String(remainingSeconds % 60).padStart(2, '0');
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+        }
+        function timerTick() {
+            if (isPaused) return;
+            if (remainingSeconds > 0) {
+                remainingSeconds--; updateTimerDisplay();
+            } else {
+                clearInterval(timerInterval); timerInterval = null; playNotificationSound();
+                timerDisplay.classList.add('timer-pulse');
+            }
+        }
+        function startTimer(seconds) {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            clearInterval(timerInterval);
+            remainingSeconds = seconds; isPaused = false;
+            pauseResumeButton.textContent = "Pausar";
+            timerDisplay.classList.remove('timer-pulse'); updateTimerDisplay();
+            timerModal.classList.remove('hidden');
+            timerInterval = setInterval(timerTick, 1000);
+        }
+        function closeTimer() {
+            clearInterval(timerInterval); timerInterval = null;
+            timerModal.classList.add('hidden'); timerDisplay.classList.remove('timer-pulse');
+        }
+        function adjustTime(seconds) {
+            remainingSeconds += seconds;
+            if (remainingSeconds < 0) remainingSeconds = 0;
+            if (!timerInterval && remainingSeconds > 0) startTimer(remainingSeconds);
+            updateTimerDisplay();
+        }
+        function togglePause() {
+            isPaused = !isPaused;
+            pauseResumeButton.textContent = isPaused ? "Continuar" : "Pausar";
+        }
+        function playNotificationSound() {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator(), gainNode = audioContext.createGain();
+            oscillator.connect(gainNode); gainNode.connect(audioContext.destination);
+            oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.5);
+            oscillator.start(audioContext.currentTime); oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+    </script>
+
+</body>
+</html>
