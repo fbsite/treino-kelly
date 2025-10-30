@@ -64,7 +64,6 @@
             padding: 1rem 0.5rem; 
         }
         
-        /* Estilos para inputs numéricos */
         input[type="number"] {
             -moz-appearance: textfield;
         }
@@ -126,11 +125,13 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="workout-duration" class="text-sm text-gray-400 font-semibold">Duração (min)</label>
-                    <input type="number" id="workout-duration" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 60">
+                    <!-- Adicionado oninput="debouncedSaveData()" -->
+                    <input type="number" id="workout-duration" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 60" oninput="debouncedSaveData()">
                 </div>
                 <div>
                     <label for="workout-calories" class="text-sm text-gray-400 font-semibold">Calorias (kcal)</label>
-                    <input type="number" id="workout-calories" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 350">
+                    <!-- Adicionado oninput="debouncedSaveData()" -->
+                    <input type="number" id="workout-calories" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 350" oninput="debouncedSaveData()">
                 </div>
             </div>
         </div>
@@ -151,7 +152,13 @@
         </div>
     </div>
 
+    <!-- Indicador de "Salvo!" -->
+    <div id="save-indicator" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-500 z-50">
+        Salvo!
+    </div>
+
     <script>
+        // --- DEFINIÇÕES DE TREINO ---
         const lowerBodyWarmup = [
             { name: "Agachamento sem peso", duration: "2 min" },
             { name: "Alongamento Dinâmico", duration: "2 min" }
@@ -159,13 +166,12 @@
         const upperBodyWarmup = [
             { name: "Alongamento Dinâmico", duration: "2 min" }
         ];
-
         const generalCardio = { name: "HIIT (Esteira ou Bike)", duration: "20 min" };
         const restDayCardio = { name: "Caminhada Leve", duration: "30 min (Opcional)" };
 
         const workouts = {
             1: {
-                day: "Segunda-Feira", focus: "Glúteo",
+                day: "Segunda-Feira", focus: "Glúteos",
                 warmup: lowerBodyWarmup,
                 exercises: [
                     { name: "Agachamento sumo", series: 4, reps: "15", target: "Glúteo", desc: "Afaste os pés além da largura dos ombros, com as pontas para fora. Mantenha as costas retas e agache como se fosse sentar, descendo o máximo que conseguir com boa postura." },
@@ -235,9 +241,15 @@
 
         const motivationalQuotes = ["Acredite em você e em tudo que você é. Saiba que existe algo dentro de você que é maior que qualquer obstáculo.","A dor que você sente hoje é a força que você sentirá amanhã.","O sucesso é a soma de pequenos esforços repetidos dia após dia.","A única pessoa que você está destinada a se tornar é a pessoa que você decide ser.","Não espere por oportunidades, crie-as. O corpo alcança o que a mente acredita.","A persistência realiza o impossível.","Seu maior concorrente é você mesmo. Supere-se todos os dias.","Cada treino é um passo a mais para a sua melhor versão.","Força não vem da capacidade física. Vem de uma vontade indomável.","O suor de hoje é o sorriso de amanhã. Continue firme!"];
         
+        // --- Variáveis Globais ---
         let timerInterval = null, remainingSeconds = 60, isPaused = false, audioContext;
         const timerModal = document.getElementById('timer-modal'), timerDisplay = document.getElementById('timer-display'), pauseResumeButton = document.getElementById('pause-resume-button');
         const progressContainer = document.getElementById('progress-container'), summarySection = document.getElementById('summary-section');
+        
+        // --- Novas Variáveis para Salvar Dados ---
+        const DATA_KEY = 'kellyBragaWorkoutData';
+        let currentDayIndex = null;
+        let saveTimeout = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             const quoteEl = document.getElementById('quote'), dayNavigationEl = document.getElementById('day-navigation'), today = new Date();
@@ -256,6 +268,7 @@
         });
 
         function showWorkout(dayIndex) {
+            currentDayIndex = dayIndex; // Define o dia atual globalmente
             const workout = workouts[dayIndex];
             if (!workout) return;
             
@@ -294,7 +307,8 @@
             cardioSectionEl.innerHTML = `<h3 class="text-xl font-bold text-white mb-3">${isRestDay ? "Atividade Opcional" : "Cardio (Pós-treino)"}</h3>`;
             cardioSectionEl.appendChild(createActivityCard(workout.cardio, false));
 
-            updateProgress();
+            // --- Carrega os dados salvos para este dia ---
+            loadData(dayIndex);
         }
 
         function createActivityCard(activity, showCheckbox) {
@@ -313,18 +327,23 @@
             const cardId = `ex-card-${dayIndex}-${index}`;
             let seriesCheckboxes = Array.from({ length: exercise.series }, () => `
                 <label class="series-checkbox-label relative flex items-center justify-center cursor-pointer">
-                    <input type="checkbox" class="sr-only">
+                    <!-- Adicionado onchange="debouncedSaveData()" -->
+                    <input type="checkbox" class="sr-only" onchange="debouncedSaveData()">
                     <div class="series-checkbox-custom w-8 h-8 bg-gray-600 rounded-md border-2 border-gray-500 flex items-center justify-center transition-all duration-300">
                         <svg class="w-5 h-5 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
                 </label>`).join('');
 
             const exerciseCard = document.createElement('div');
-            exerciseCard.className = "bg-gray-800 rounded-lg p-4 shadow-md";
+            // Adicionado um data-index para facilitar salvar/carregar
+            exerciseCard.className = "bg-gray-800 rounded-lg p-4 shadow-md exercise-card";
+            exerciseCard.dataset.index = index; 
+            
             exerciseCard.innerHTML = `
                 <div class="flex justify-between items-start">
                     <div class="flex items-center space-x-3">
                         <label class="master-checkbox-label relative flex items-center justify-center cursor-pointer">
+                            <!-- Modificado onchange="updateProgress()" -->
                             <input type="checkbox" class="sr-only exercise-complete-checkbox" onchange="updateProgress()">
                             <div class="master-checkbox-custom w-7 h-7 bg-gray-600 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all duration-300">
                                 <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -336,7 +355,6 @@
                         </div>
                     </div>
                     <div class="flex items-center">
-                        <!-- Botão de Informação -->
                         <button onclick="toggleInfo('${cardId}')" class="text-gray-400 hover:text-white mr-4 p-1 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </button>
@@ -360,7 +378,8 @@
                     
                     <div class="mt-4">
                         <label for="weight-${cardId}" class="text-sm font-semibold text-gray-300">Carga (kg):</label>
-                        <input type="number" id="weight-${cardId}" class="w-full bg-gray-600 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 20">
+                        <!-- Adicionado oninput="debouncedSaveData()" e uma classe 'weight-input' -->
+                        <input type="number" id="weight-${cardId}" class="w-full bg-gray-600 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 weight-input" placeholder="Ex: 20" oninput="debouncedSaveData()">
                     </div>
                 </div>
             `;
@@ -381,9 +400,90 @@
             
             document.getElementById('workout-progress-bar').style.width = percentage + '%';
             document.getElementById('workout-progress-text').textContent = Math.round(percentage) + '% Completo';
+
+            // --- Salva os dados após atualizar o progresso ---
+            debouncedSaveData();
         }
 
-        // --- Funções do Timer ---
+        // --- NOVAS FUNÇÕES PARA SALVAR/CARREGAR DADOS ---
+
+        function debouncedSaveData() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveData, 500); // Espera 500ms antes de salvar
+        }
+
+        function saveData() {
+            if (currentDayIndex === null) return;
+
+            const allData = JSON.parse(localStorage.getItem(DATA_KEY)) || {};
+            const dayData = {
+                exercises: [],
+                summary: {}
+            };
+
+            // Salva dados dos exercícios
+            document.querySelectorAll('#exercise-list .exercise-card').forEach(card => {
+                const exerciseData = {
+                    completed: card.querySelector('.exercise-complete-checkbox').checked,
+                    weight: card.querySelector('.weight-input').value,
+                    series: Array.from(card.querySelectorAll('.series-checkbox-label input')).map(chk => chk.checked)
+                };
+                dayData.exercises.push(exerciseData);
+            });
+
+            // Salva dados do resumo
+            dayData.summary = {
+                duration: document.getElementById('workout-duration').value,
+                calories: document.getElementById('workout-calories').value
+            };
+
+            allData[currentDayIndex] = dayData;
+            localStorage.setItem(DATA_KEY, JSON.stringify(allData));
+
+            // Mostra o indicador "Salvo!"
+            const indicator = document.getElementById('save-indicator');
+            indicator.classList.remove('opacity-0');
+            setTimeout(() => {
+                indicator.classList.add('opacity-0');
+            }, 1000);
+        }
+
+        function loadData(dayIndex) {
+            const allData = JSON.parse(localStorage.getItem(DATA_KEY)) || {};
+            const dayData = allData[dayIndex];
+
+            if (!dayData) {
+                // Se não houver dados, limpa os campos de resumo e atualiza o progresso (para 0%)
+                document.getElementById('workout-duration').value = '';
+                document.getElementById('workout-calories').value = '';
+                updateProgress(); // Chama para definir a barra como 0% e salvar esse estado vazio
+                return;
+            }
+
+            // Carrega dados dos exercícios
+            const exerciseCards = document.querySelectorAll('#exercise-list .exercise-card');
+            exerciseCards.forEach((card, index) => {
+                const savedEx = dayData.exercises[index];
+                if (savedEx) {
+                    card.querySelector('.exercise-complete-checkbox').checked = savedEx.completed;
+                    card.querySelector('.weight-input').value = savedEx.weight;
+                    
+                    const seriesCheckboxes = card.querySelectorAll('.series-checkbox-label input');
+                    seriesCheckboxes.forEach((chk, sIndex) => {
+                        chk.checked = savedEx.series[sIndex] || false;
+                    });
+                }
+            });
+
+            // Carrega dados do resumo
+            document.getElementById('workout-duration').value = dayData.summary.duration || '';
+            document.getElementById('workout-calories').value = dayData.summary.calories || '';
+
+            // Atualiza a barra de progresso com os dados carregados
+            updateProgress();
+        }
+
+        // --- Funções do Timer (Sem alterações) ---
         function updateTimerDisplay() {
             const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
             const seconds = String(remainingSeconds % 60).padStart(2, '0');
