@@ -89,6 +89,29 @@
             <p id="quote" class="text-lg font-semibold text-white">"Carregando frase motivacional..."</p>
         </div>
 
+        <!-- Seção de Metas (Nova) -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-md">
+            <h3 class="text-xl font-bold text-white mb-4 text-center">Meus Objetivos</h3>
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <div>
+                    <p class="text-sm text-gray-400 font-semibold">Peso Atual</p>
+                    <p class="text-2xl font-bold text-pink-400">70 kg</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-400 font-semibold">Meta de Peso</p>
+                    <p class="text-2xl font-bold text-green-400">65 kg</p>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-sm text-gray-400 font-semibold">Foco Principal</p>
+                <p class="text-lg font-bold text-white">Glúteos, Pernas, Abdômen & Braços</p>
+            </div>
+            <div class="text-center mt-4 pt-4 border-t border-gray-700">
+                <p class="text-sm text-gray-400 font-semibold">Duração do Plano</p>
+                <p class="text-lg font-bold text-white">Início: 03/11/2025 &nbsp;&nbsp;|&nbsp;&nbsp; Término: 03/01/2026</p>
+            </div>
+        </div>
+
         <div class="mb-8 overflow-x-auto pb-2 no-scrollbar">
             <nav id="day-navigation" class="flex space-x-2 justify-start md:justify-center min-w-max">
             </nav>
@@ -125,12 +148,10 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="workout-duration" class="text-sm text-gray-400 font-semibold">Duração (min)</label>
-                    <!-- Adicionado oninput="debouncedSaveData()" -->
                     <input type="number" id="workout-duration" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 60" oninput="debouncedSaveData()">
                 </div>
                 <div>
                     <label for="workout-calories" class="text-sm text-gray-400 font-semibold">Calorias (kcal)</label>
-                    <!-- Adicionado oninput="debouncedSaveData()" -->
                     <input type="number" id="workout-calories" class="w-full bg-gray-700 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ex: 350" oninput="debouncedSaveData()">
                 </div>
             </div>
@@ -166,87 +187,109 @@
         const upperBodyWarmup = [
             { name: "Alongamento Dinâmico", duration: "2 min" }
         ];
-        const generalCardio = { name: "HIIT (Esteira ou Bike)", duration: "20 min" };
+        
+        const hiitCardio = { name: "HIIT na Esteira", duration: "15-20 min" };
         const restDayCardio = { name: "Caminhada Leve", duration: "30 min (Opcional)" };
 
+        // --- PLANO DE TREINO (6 DIAS) ---
         const workouts = {
             1: {
-                day: "Segunda-Feira", focus: "Glúteos",
+                day: "Segunda-Feira", focus: "Quadríceps & Glúteos",
                 warmup: lowerBodyWarmup,
                 exercises: [
-                    { name: "Agachamento sumo", series: 4, reps: "15", target: "Glúteo", desc: "Afaste os pés além da largura dos ombros, com as pontas para fora. Mantenha as costas retas e agache como se fosse sentar, descendo o máximo que conseguir com boa postura." },
-                    { name: "Elevação Pélvica", series: 4, reps: "20", target: "Glúteo", desc: "Deite-se com os joelhos dobrados. Coloque o peso sobre o quadril e eleve-o em direção ao teto, contraindo os glúteos no topo. Desça de forma controlada." },
-                    { name: "Afundo com Haltere", series: 3, reps: "12", target: "Glúteo", desc: "Dê um passo à frente e flexione os joelhos até formarem ângulos de 90 graus. O joelho de trás deve quase tocar o chão. Mantenha o tronco ereto." },
-                    { name: "Cadeira Abdutora", series: 3, reps: "15", target: "Glúteo", desc: "Sente-se com as costas apoiadas. Force as pernas para fora contra as almofadas, controlando o movimento na ida e na volta." },
-                    { name: "Glúteo Máquina", series: 3, reps: "15", target: "Glúteo", desc: "Apoie-se na máquina e posicione um pé na plataforma. Empurre a plataforma para trás e para cima, contraindo o glúteo. Controle a volta." },
-                    { name: "Agachamento Livre", series: 3, reps: "15", target: "Quadríceps", desc: "Posicione a barra nos ombros. Com os pés na largura dos ombros e costas retas, agache descendo o quadril para trás e para baixo. Mantenha o peito aberto." }
+                    { name: "Agachamento Livre", series: 4, reps: "12", target: "Quadríceps/Glúteo", desc: "Posicione a barra nos ombros. Com os pés na largura dos ombros e costas retas, agache descendo o quadril para trás e para baixo. Mantenha o peito aberto." },
+                    { name: "Leg Press 45", series: 3, reps: "15", target: "Quadríceps", desc: "Com os pés na plataforma, desça o peso flexionando os joelhos. Empurre de volta sem travar os joelhos no final do movimento." },
+                    { name: "Agachamento Búlgaro", series: 3, reps: "12", target: "Quadríceps/Glúteo", desc: "Apoie o peito de um pé no banco atrás de você. Agache com a perna da frente, mantendo o tronco ereto e o equilíbrio. (12 repetições para cada perna)" },
+                    { name: "Cadeira Extensora", series: 3, reps: "15", target: "Quadríceps", desc: "Sentada, estenda as pernas para cima, contraindo o quadríceps. Segure no topo e desça de forma controlada." },
+                    { name: "Elevação Pélvica", series: 4, reps: "15", target: "Glúteo", desc: "Deite-se com os joelhos dobrados. Coloque o peso sobre o quadril e eleve-o em direção ao teto, contraindo os glúteos no topo. Desça de forma controlada." }
                 ],
-                cardio: generalCardio
+                cardio: hiitCardio
             },
             2: {
-                day: "Terça-Feira", focus: "Ombro, Peito & Tríceps",
+                day: "Terça-Feira", focus: "Peito, Ombros & Abdômen",
                 warmup: upperBodyWarmup,
                 exercises: [
-                    { name: "Supino Reto", series: 4, reps: "12", target: "Peito", desc: "Deite-se no banco, pés firmes no chão. Desça a barra de forma controlada até o meio do peito e empurre para cima até estender os cotovelos." },
+                    { name: "Supino com Halteres", series: 4, reps: "12", target: "Peito", desc: "Deite-se no banco, pés firmes no chão. Desça os halteres de forma controlada na lateral do peito e empurre para cima." },
                     { name: "Desenvolvimento com Halteres", series: 3, reps: "12", target: "Ombro", desc: "Sentada, eleve os halteres da altura dos ombros até acima da cabeça, sem encostá-los. Desça de forma controlada." },
                     { name: "Elevação Lateral", series: 3, reps: "15", target: "Ombro", desc: "Em pé, eleve os halteres para os lados até a altura dos ombros, com os cotovelos levemente flexionados. Controle a subida e a descida." },
-                    { name: "Tríceps Pulley", series: 3, reps: "15", target: "Tríceps", desc: "Mantenha os cotovelos colados ao corpo. Puxe a barra para baixo até estender completamente os braços. Suba controladamente." },
-                    { name: "Tríceps Testa", series: 3, reps: "12", target: "Tríceps", desc: "Deitada, desça a barra em direção à testa, flexionando os cotovelos. Mantenha os cotovelos apontados para o teto e estenda os braços para voltar." },
-                    { name: "Peck Deck", series: 3, reps: "15", target: "Peito", desc: "Sente-se com as costas apoiadas. Junte os pegadores na frente do corpo, contraindo o peitoral. Volte à posição inicial de forma controlada." }
+                    { name: "Tríceps Pulley", series: 3, reps: "15", target: "Braço (Tríceps)", desc: "Mantenha os cotovelos colados ao corpo. Puxe a barra para baixo até estender completamente os braços. Suba controladamente." },
+                    { name: "Abdominal Infra (na paralela)", series: 3, reps: "20", target: "Abdômen", desc: "Pendure-se com os braços apoiados. Eleve os joelhos em direção ao peito, contraindo o abdômen. Desça de forma controlada." },
+                    { name: "Prancha", series: 3, reps: "60s", target: "Abdômen", desc: "Apoie os antebraços e as pontas dos pés no chão. Mantenha o corpo reto, contraindo o abdômen e os glúteos." }
                 ],
-                cardio: generalCardio
+                cardio: hiitCardio
             },
             3: {
-                day: "Quarta-Feira", focus: "Pernas (Foco em Quadríceps)",
+                day: "Quarta-Feira", focus: "Posteriores & Glúteos",
                 warmup: lowerBodyWarmup,
                 exercises: [
-                    { name: "Leg. 45", series: 4, reps: "15", target: "Quadríceps", desc: "Com os pés na plataforma, desça o peso flexionando os joelhos. Empurre de volta sem travar os joelhos no final do movimento." },
-                    { name: "Agachamento Hack", series: 3, reps: "12", target: "Quadríceps", desc: "Mantenha a coluna reta contra o encosto. Agache flexionando os joelhos e empurre para voltar à posição inicial." },
-                    { name: "Extensora", series: 3, reps: "15", target: "Quadríceps", desc: "Sentada, estenda as pernas para cima, contraindo o quadríceps. Segure no topo e desça de forma controlada." },
-                    { name: "Agachamento Búlgaro", series: 3, reps: "12", target: "Quadríceps", desc: "Apoie o peito de um pé no banco atrás de você. Agache com a perna da frente, mantendo o tronco ereto e o equilíbrio." },
-                    { name: "Avanço com Halteres", series: 3, reps: "12", target: "Quadríceps", desc: "Dê um passo à frente e agache (afundo). Em vez de retornar, impulsione o corpo para frente, 'caminhando' com os afundos." },
-                    { name: "Cadeira Flexora", series: 3, reps: "15", target: "Posterior", desc: "Deitada de bruços, puxe a almofada em direção aos glúteos, contraindo a parte de trás da coxa. Desça de forma controlada." }
+                    { name: "Stiff", series: 4, reps: "12", target: "Posterior/Glúteo", desc: "Com as pernas quase retas, incline o tronco para a frente, descendo o peso. Mantenha as costas retas e sinta alongar a parte de trás da coxa." },
+                    { name: "Cadeira Flexora", series: 3, reps: "15", target: "Posterior", desc: "Deitada de bruços, puxe a almofada em direção aos glúteos, contraindo a parte de trás da coxa. Desça de forma controlada." },
+                    { name: "Agachamento Sumo", series: 3, reps: "15", target: "Glúteo/Adutor", desc: "Afaste os pés além da largura dos ombros, com as pontas para fora. Mantenha as costas retas e agache o máximo que conseguir com boa postura." },
+                    { name: "Glúteo na Polia (Cabo)", series: 3, reps: "15", target: "Glúteo", desc: "Prenda o tornozelo ao cabo. Com o corpo levemente inclinado, puxe a perna para trás, contraindo o glúteo. (15 repetições para cada perna)" },
+                    { name: "Cadeira Abdutora", series: 3, reps: "20", target: "Glúteo", desc: "Sente-se com as costas apoiadas. Force as pernas para fora contra as almofadas, controlando o movimento na ida e na volta. (Repetições altas)" }
                 ],
-                cardio: generalCardio
+                cardio: hiitCardio
             },
             4: {
-                day: "Quinta-Feira", focus: "Costas & Bíceps",
+                day: "Quinta-Feira", focus: "Costas, Bíceps & Abdômen",
                 warmup: upperBodyWarmup,
                 exercises: [
                     { name: "Pulldown", series: 4, reps: "12", target: "Costas", desc: "Puxe a barra em direção à parte superior do peito, inclinando levemente o tronco para trás e contraindo as costas." },
-                    { name: "Remada Baixa", series: 3, reps: "15", target: "Costas", desc: "Puxe o pegador em direção ao abdômen, mantendo as costas retas e juntando as escápulas no final do movimento." },
-                    { name: "Remada Curvada", series: 3, reps: "12", target: "Costas", desc: "Incline o tronco para a frente com as costas retas. Puxe a barra em direção à parte inferior do abdômen, mantendo os cotovelos próximos ao corpo." },
-                    { name: "Rosca direta Barra", series: 3, reps: "15", target: "Bíceps", desc: "Mantenha os cotovelos fixos ao lado do corpo e suba a barra flexionando os braços, sem balançar o corpo." },
-                    { name: "Rosca Alternada", series: 3, reps: "12", target: "Bíceps", desc: "Suba um haltere de cada vez, girando o punho para que a palma da mão fique para cima no topo do movimento. Controle a descida." },
-                    { name: "Rosca Martelo", series: 3, reps: "12", target: "Bíceps", desc: "Segure os halteres com pegada neutra (martelo). Suba os pesos mantendo os cotovelos fixos ao lado do corpo." }
+                    { name: "Remada Curvada (Barra)", series: 3, reps: "12", target: "Costas", desc: "Incline o tronco para a frente com as costas retas. Puxe a barra em direção à parte inferior do abdômen, mantendo os cotovelos próximos ao corpo." },
+                    { name: "Remada Unilateral (Serrote)", series: 3, reps: "12", target: "Costas", desc: "Apoie um joelho e uma mão no banco. Puxe o haltere em direção ao quadril, contraindo as costas. (12 repetições para cada braço)" },
+                    { name: "Rosca Direta (Barra)", series: 3, reps: "15", target: "Braço (Bíceps)", desc: "Mantenha os cotovelos fixos ao lado do corpo e suba a barra flexionando os braços, sem balançar o corpo." },
+                    { name: "Abdominal Supra (Máquina)", series: 3, reps: "20", target: "Abdômen", desc: "Sente-se na máquina e ajuste o peso. Flexione o tronco para a frente, contraindo o abdômen. Controle a volta." },
+                    { name: "Abdominal Oblíquo (Cabo)", series: 3, reps: "15", target: "Abdômen", desc: "De lado para a polia alta, puxe o cabo em um movimento de 'crunch' lateral, contraindo o oblíquo. (15 repetições para cada lado)" }
                 ],
-                cardio: generalCardio
+                cardio: hiitCardio
             },
             5: {
-                day: "Sexta-Feira", focus: "Pernas (Posteriores, Glúteos & Panturrilha)",
+                day: "Sexta-Feira", focus: "Foco Glúteos & Pernas (Full)",
                 warmup: lowerBodyWarmup,
                 exercises: [
-                    { name: "Stiff", series: 4, reps: "15", target: "Posterior", desc: "Com as pernas quase retas, incline o tronco para a frente, descendo o peso. Mantenha as costas retas e sinta alongar a parte de trás da coxa." },
-                    { name: "Cadeira Flexora", series: 4, reps: "15", target: "Posterior", desc: "Deitada de bruços, puxe a almofada em direção aos glúteos, contraindo a parte de trás da coxa. Desça de forma controlada." },
-                    { name: "Elevação Pélvica", series: 3, reps: "20", target: "Glúteo", desc: "Deite-se com os joelhos dobrados. Coloque o peso sobre o quadril e eleve-o em direção ao teto, contraindo os glúteos no topo." },
-                    { name: "Agachamento Sumo", series: 3, reps: "12", target: "Glúteo", desc: "Afaste os pés além da largura dos ombros, com as pontas para fora. Mantenha as costas retas e agache o máximo que conseguir com boa postura." },
-                    { name: "Gêmeos Sentado", series: 4, reps: "10 > 20", target: "Panturrilha", desc: "Eleve os calcanhares o máximo que puder, contraindo a panturrilha. Desça de forma controlada, alongando bem." },
-                    { name: "Gêmeos Plantar", series: 4, reps: "10 > 20", target: "Panturrilha", desc: "Em pé, na beira de um degrau. Fique na ponta dos pés, contraindo a panturrilha, e desça o máximo que conseguir para alongar." }
+                    { name: "Elevação Pélvica", series: 4, reps: "15", target: "Glúteo", desc: "Comece com foco total no glúteo. Eleve o quadril o máximo que puder, contraindo forte no topo." },
+                    // --- EXERCÍCIO SUBSTITUÍDO ---
+                    { name: "Agachamento no Smith", series: 3, reps: "12", target: "Quadríceps/Glúteo", desc: "Posicione a barra do Smith nos ombros. Agache fundo, mantendo a coluna reta. A máquina guia o movimento, permitindo focar na contração." },
+                    { name: "Afundo (Passada)", series: 3, reps: "15", target: "Quadríceps/Glúteo", desc: "Dê passos longos, flexionando os joelhos. O joelho de trás deve quase tocar o chão. Mantenha o tronco ereto. (15 repetições para cada perna)" },
+                    { name: "Mesa Flexora", series: 3, reps: "15", target: "Posterior", desc: "Deitada de bruços, puxe a almofada em direção aos glúteos. Diferente da Cadeira Flexora, esta é deitada." },
+                    { name: "Gêmeos (Panturrilha) em pé", series: 4, reps: "20", target: "Panturrilha", desc: "Eleve os calcanhares o máximo que puder, contraindo a panturrilha. Desça de forma controlada, alongando bem." }
                 ],
-                cardio: generalCardio
+                cardio: hiitCardio
             },
-            0: { day: "Domingo", focus: "Dia de Descanso", exercises: [], warmup: [], cardio: restDayCardio },
-            6: { day: "Sábado", focus: "Dia de Descanso", exercises: [], warmup: [], cardio: restDayCardio }
+            6: {
+                day: "Sábado", focus: "Braços, Ombros & Abdômen",
+                warmup: upperBodyWarmup,
+                exercises: [
+                    { name: "Rosca Martelo (Halteres)", series: 3, reps: "12", target: "Braço (Bíceps)", desc: "Segure os halteres com pegada neutra (martelo). Suba os pesos mantendo os cotovelos fixos ao lado do corpo." },
+                    { name: "Tríceps Testa (Halteres)", series: 3, reps: "12", target: "Braço (Tríceps)", desc: "Deitada, desça os halteres em direção à lateral da cabeça, flexionando os cotovelos. Mantenha os cotovelos apontados para o teto." },
+                    { name: "Rosca Scott (Máquina)", series: 3, reps: "15", target: "Braço (Bíceps)", desc: "Sente-se e apoie os braços. Puxe o pegador em sua direção, focando na contração máxima do bíceps." },
+                    { name: "Tríceps Francês (Unilateral)", series: 3, reps: "15", target: "Braço (Tríceps)", desc: "Sentada, segure um haltere acima da cabeça. Desça-o atrás da nuca flexionando o cotovelo e estenda. (15 repetições para cada braço)" },
+                    { name: "Elevação Frontal (Halteres)", series: 3, reps: "12", target: "Ombro", desc: "Eleve os halteres alternadamente para a frente, até a altura dos ombros. Mantenha o controle, sem balançar o corpo." },
+                    { name: "Prancha Lateral", series: 3, reps: "45s", target: "Abdômen", desc: "Apoie-se em um antebraço, de lado. Eleve o quadril e mantenha o corpo reto. (45 segundos para cada lado)" }
+                ],
+                cardio: hiitCardio
+            },
+            0: { day: "Domingo", focus: "Dia de Descanso", exercises: [], warmup: [], cardio: restDayCardio }
         };
 
-        const motivationalQuotes = ["Acredite em você e em tudo que você é. Saiba que existe algo dentro de você que é maior que qualquer obstáculo.","A dor que você sente hoje é a força que você sentirá amanhã.","O sucesso é a soma de pequenos esforços repetidos dia após dia.","A única pessoa que você está destinada a se tornar é a pessoa que você decide ser.","Não espere por oportunidades, crie-as. O corpo alcança o que a mente acredita.","A persistência realiza o impossível.","Seu maior concorrente é você mesmo. Supere-se todos os dias.","Cada treino é um passo a mais para a sua melhor versão.","Força não vem da capacidade física. Vem de uma vontade indomável.","O suor de hoje é o sorriso de amanhã. Continue firme!"];
+        const motivationalQuotes = [
+            "Acredite em você e em tudo que você é. Saiba que existe algo dentro de você que é maior que qualquer obstáculo.",
+            "O sucesso na perda de peso vem da consistência, não da perfeição.",
+            "O sucesso é a soma de pequenos esforços repetidos dia após dia.",
+            "Cada escolha saudável é um investimento no seu objetivo de 65kg.",
+            "Não espere por oportunidades, crie-as. O corpo alcança o que a mente acredita.",
+            "Construa o músculo, queime a gordura. Você está fazendo os dois.",
+            "Seu maior concorrente é você mesmo. Supere-se todos os dias.",
+            "Cada treino é um passo a mais para a sua melhor versão.",
+            "Força não vem da capacidade física. Vem de uma vontade indomável.",
+            "O suor de hoje é o sorriso de amanhã. Continue firme!"
+        ];
         
         // --- Variáveis Globais ---
         let timerInterval = null, remainingSeconds = 60, isPaused = false, audioContext;
         const timerModal = document.getElementById('timer-modal'), timerDisplay = document.getElementById('timer-display'), pauseResumeButton = document.getElementById('pause-resume-button');
         const progressContainer = document.getElementById('progress-container'), summarySection = document.getElementById('summary-section');
         
-        // --- Novas Variáveis para Salvar Dados ---
         const DATA_KEY = 'kellyBragaWorkoutData';
         let currentDayIndex = null;
         let saveTimeout = null;
@@ -307,7 +350,6 @@
             cardioSectionEl.innerHTML = `<h3 class="text-xl font-bold text-white mb-3">${isRestDay ? "Atividade Opcional" : "Cardio (Pós-treino)"}</h3>`;
             cardioSectionEl.appendChild(createActivityCard(workout.cardio, false));
 
-            // --- Carrega os dados salvos para este dia ---
             loadData(dayIndex);
         }
 
@@ -327,7 +369,6 @@
             const cardId = `ex-card-${dayIndex}-${index}`;
             let seriesCheckboxes = Array.from({ length: exercise.series }, () => `
                 <label class="series-checkbox-label relative flex items-center justify-center cursor-pointer">
-                    <!-- Adicionado onchange="debouncedSaveData()" -->
                     <input type="checkbox" class="sr-only" onchange="debouncedSaveData()">
                     <div class="series-checkbox-custom w-8 h-8 bg-gray-600 rounded-md border-2 border-gray-500 flex items-center justify-center transition-all duration-300">
                         <svg class="w-5 h-5 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -335,7 +376,6 @@
                 </label>`).join('');
 
             const exerciseCard = document.createElement('div');
-            // Adicionado um data-index para facilitar salvar/carregar
             exerciseCard.className = "bg-gray-800 rounded-lg p-4 shadow-md exercise-card";
             exerciseCard.dataset.index = index; 
             
@@ -343,7 +383,6 @@
                 <div class="flex justify-between items-start">
                     <div class="flex items-center space-x-3">
                         <label class="master-checkbox-label relative flex items-center justify-center cursor-pointer">
-                            <!-- Modificado onchange="updateProgress()" -->
                             <input type="checkbox" class="sr-only exercise-complete-checkbox" onchange="updateProgress()">
                             <div class="master-checkbox-custom w-7 h-7 bg-gray-600 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all duration-300">
                                 <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -378,7 +417,6 @@
                     
                     <div class="mt-4">
                         <label for="weight-${cardId}" class="text-sm font-semibold text-gray-300">Carga (kg):</label>
-                        <!-- Adicionado oninput="debouncedSaveData()" e uma classe 'weight-input' -->
                         <input type="number" id="weight-${cardId}" class="w-full bg-gray-600 text-white rounded-lg p-2 mt-1 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 weight-input" placeholder="Ex: 20" oninput="debouncedSaveData()">
                     </div>
                 </div>
@@ -401,11 +439,10 @@
             document.getElementById('workout-progress-bar').style.width = percentage + '%';
             document.getElementById('workout-progress-text').textContent = Math.round(percentage) + '% Completo';
 
-            // --- Salva os dados após atualizar o progresso ---
             debouncedSaveData();
         }
 
-        // --- NOVAS FUNÇÕES PARA SALVAR/CARREGAR DADOS ---
+        // --- FUNÇÕES DE SALVAR/CARREGAR DADOS ---
 
         function debouncedSaveData() {
             clearTimeout(saveTimeout);
