@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Adicionado para impedir a indexação por motores de busca -->
+    <meta name="robots" content="noindex, nofollow">
     <title>App de Treino - Kelly Braga</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -89,7 +91,7 @@
             <p id="quote" class="text-lg font-semibold text-white">"Carregando frase motivacional..."</p>
         </div>
 
-        <!-- Seção de Metas (Nova) -->
+        <!-- Seção de Metas -->
         <div class="bg-gray-800 rounded-lg p-6 mb-8 shadow-md">
             <h3 class="text-xl font-bold text-white mb-4 text-center">Meus Objetivos</h3>
             <div class="grid grid-cols-2 gap-4 text-center">
@@ -248,7 +250,6 @@
                 warmup: lowerBodyWarmup,
                 exercises: [
                     { name: "Elevação Pélvica", series: 4, reps: "15", target: "Glúteo", desc: "Comece com foco total no glúteo. Eleve o quadril o máximo que puder, contraindo forte no topo." },
-                    // --- EXERCÍCIO SUBSTITUÍDO ---
                     { name: "Agachamento no Smith", series: 3, reps: "12", target: "Quadríceps/Glúteo", desc: "Posicione a barra do Smith nos ombros. Agache fundo, mantendo a coluna reta. A máquina guia o movimento, permitindo focar na contração." },
                     { name: "Afundo (Passada)", series: 3, reps: "15", target: "Quadríceps/Glúteo", desc: "Dê passos longos, flexionando os joelhos. O joelho de trás deve quase tocar o chão. Mantenha o tronco ereto. (15 repetições para cada perna)" },
                     { name: "Mesa Flexora", series: 3, reps: "15", target: "Posterior", desc: "Deitada de bruços, puxe a almofada em direção aos glúteos. Diferente da Cadeira Flexora, esta é deitada." },
